@@ -1,3 +1,4 @@
+![Capa do app](Archetypes.png)
 # ArcheTypos — Exame Junguiano dos Doze Arquétipos
 
 Site 100% estático em **HTML, CSS e JavaScript puro** — sem build, sem
