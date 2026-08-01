@@ -36,30 +36,35 @@
     render();
   }
 
+  // Selecionar uma opção Likert apenas registra a resposta e re-renderiza a
+  // MESMA pergunta com a opção marcada (habilitando o botão "Próxima").
+  // O avanço de fato só acontece com uma ação explícita do usuário
+  // (clique em "Próxima" / "Revelar o Resultado"), evitando qualquer
+  // condição de corrida entre avanço automático e clique manual.
   function handleAnswer(questionId, value) {
     answers[questionId] = value;
     saveAnswers(answers);
-    const btn = document.querySelector(`.likert-option[data-value="${value}"]`);
-    if (btn) btn.classList.add('is-selected');
-    setTimeout(() => {
-      if (quizIndex < QUESTIONS.length - 1) {
-        quizIndex += 1;
-        render();
-      } else if (isComplete(answers)) {
-        screen = 'result';
-        render();
-      } else {
-        render();
-      }
-    }, 220);
+    render();
   }
 
   function handleNext() {
-    if (quizIndex < QUESTIONS.length - 1) {
+    if (quizIndex >= QUESTIONS.length - 1) {
+      goToResultOrPending();
+    } else {
       quizIndex += 1;
       render();
-    } else if (isComplete(answers)) {
+    }
+  }
+
+  function goToResultOrPending() {
+    if (isComplete(answers)) {
       screen = 'result';
+      render();
+    } else {
+      // Segurança extra: se por algum motivo faltar alguma resposta
+      // anterior, leva o usuário direto até ela em vez de travar silenciosamente.
+      const firstUnanswered = QUESTIONS.findIndex((q) => answers[q.id] === undefined);
+      quizIndex = firstUnanswered === -1 ? 0 : firstUnanswered;
       render();
     }
   }
